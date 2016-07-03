@@ -118,7 +118,6 @@ endif ()
 
 project(freetype)
 
-
 if (WIN32 AND NOT MINGW AND BUILD_SHARED_LIBS)
   message(FATAL_ERROR "Building shared libraries on Windows needs MinGW")
 endif ()
@@ -159,9 +158,15 @@ set(VERSION_PATCH "0")
 set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set(SHARED_LIBRARY_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/freetype-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
 
-# Compiler definitions for building the library
-add_definitions(-DFT2_BUILD_LIBRARY)
+
+
 
 
 # Find dependencies
@@ -339,6 +344,11 @@ add_library(freetype
   ${PRIVATE_HEADERS}
   ${BASE_SRCS}
 )
+# Compiler definitions for building the library
+target_compile_definitions(freetype
+  PRIVATE FT2_BUILD_LIBRARY
+)
+
 
 
 if (BUILD_SHARED_LIBS)
@@ -374,7 +384,7 @@ else ()
 endif ()
 
 if (ZLIB_FOUND)
-  target_link_libraries(freetype ${MAYBE_PRIVATE} ${ZLIB_LIBRARIES})
+  target_link_libraries(freetype PRIVATE ${ZLIB_LIBRARIES})
   include_directories(${ZLIB_INCLUDE_DIRS})
 endif ()
 if (BZIP2_FOUND)
@@ -410,16 +420,21 @@ endif ()
 
 if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
   install(TARGETS freetype
-    EXPORT freetype-targets
+    EXPORT freetype
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     FRAMEWORK DESTINATION Library/Frameworks
     )
-  install(EXPORT freetype-targets
+  install(EXPORT freetype
+    FILE freetype.cmake
+    NAMESPACE freetype::
     DESTINATION lib/cmake/freetype
-    FILE freetype-config.cmake
     )
+  install(FILES
+    builds/cmake/freetype-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/freetype-config-version.cmake
+    DESTINATION lib/cmake/freetype)
 endif ()
 
 
