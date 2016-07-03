@@ -384,7 +384,7 @@ else ()
 endif ()
 
 if (ZLIB_FOUND)
-  target_link_libraries(freetype PRIVATE ${ZLIB_LIBRARIES})
+  target_link_libraries(freetype PUBLIC ${ZLIB_LIBRARIES})
   include_directories(${ZLIB_INCLUDE_DIRS})
 endif ()
 if (BZIP2_FOUND)
