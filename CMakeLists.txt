@@ -406,7 +406,7 @@ endif ()
 # Note the trailing slash in the argument to the `DIRECTORY' directive
 if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
   install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-    DESTINATION include/freetype2
+    DESTINATION include
     PATTERN "internal" EXCLUDE
     PATTERN "ftconfig.h" EXCLUDE
     PATTERN "ftoption.h" EXCLUDE
@@ -414,8 +414,12 @@ if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
   install(FILES
     ${PROJECT_BINARY_DIR}/include/freetype/config/ftconfig.h
     ${PROJECT_BINARY_DIR}/include/freetype/config/ftoption.h
-    DESTINATION include/freetype2/freetype/config
+    DESTINATION include/freetype/config
     )
+    # install(FILES
+    #   ${CMAKE_CURRENT_SOURCE_DIR}/include/ft2build.h
+    #   DESTINATION include
+    #   )
 endif ()
 
 if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
