@@ -159,10 +159,12 @@ set(VERSION_PATCH "5")
 set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set(SHARED_LIBRARY_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 
-
-# Compiler definitions for building the library
-add_definitions(-DFT2_BUILD_LIBRARY)
-
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/freetype-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
 
 # Find dependencies
 foreach (d ZLIB BZip2 PNG HarfBuzz)
@@ -317,6 +319,7 @@ set(BASE_SRCS
 
 if (WIN32)
   set(BASE_SRCS ${BASE_SRCS} builds/windows/ftdebug.c)
+  set(BASE_SRCS ${BASE_SRCS} src/base/win32_compat.c)
 elseif (WINCE)
   set(BASE_SRCS ${BASE_SRCS} builds/wince/ftdebug.c)
 else ()
@@ -339,6 +342,12 @@ add_library(freetype
   ${PRIVATE_HEADERS}
   ${BASE_SRCS}
 )
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+# Compiler definitions for building the library
+target_compile_definitions(freetype
+  PRIVATE FT2_BUILD_LIBRARY
+)
+
 
 
 if (BUILD_SHARED_LIBS)
@@ -364,7 +373,11 @@ endif ()
 
 if (NOT CMAKE_VERSION VERSION_LESS 2.8.11)
   target_include_directories(freetype
-    PUBLIC $<INSTALL_INTERFACE:include/freetype2>)
+    PUBLIC
+    $<INSTALL_INTERFACE:include/freetype>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/freetype>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  )
 endif ()
 
 if (CMAKE_VERSION VERSION_LESS 2.8.12)
@@ -374,7 +387,7 @@ else ()
 endif ()
 
 if (ZLIB_FOUND)
-  target_link_libraries(freetype ${MAYBE_PRIVATE} ${ZLIB_LIBRARIES})
+  target_link_libraries(freetype PUBLIC ${ZLIB_LIBRARIES})
   include_directories(${ZLIB_INCLUDE_DIRS})
 endif ()
 if (BZIP2_FOUND)
@@ -396,7 +409,7 @@ endif ()
 # Note the trailing slash in the argument to the `DIRECTORY' directive
 if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
   install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-    DESTINATION include/freetype2
+    DESTINATION include
     PATTERN "internal" EXCLUDE
     PATTERN "ftconfig.h" EXCLUDE
     PATTERN "ftoption.h" EXCLUDE
@@ -404,22 +417,36 @@ if (NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
   install(FILES
     ${PROJECT_BINARY_DIR}/include/freetype/config/ftconfig.h
     ${PROJECT_BINARY_DIR}/include/freetype/config/ftoption.h
-    DESTINATION include/freetype2/freetype/config
+    DESTINATION include/freetype/config
     )
+    install(FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ft2build.h
+      DESTINATION include
+      )
 endif ()
+
+export(TARGETS freetype
+  FILE
+  ${CMAKE_CURRENT_BINARY_DIR}/freetype-config.cmake
+  NAMESPACE freetype::
+)
 
 if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
   install(TARGETS freetype
-    EXPORT freetype-targets
+    EXPORT freetype
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     FRAMEWORK DESTINATION Library/Frameworks
     )
-  install(EXPORT freetype-targets
+  install(EXPORT freetype
+    FILE freetype.cmake
+    NAMESPACE freetype::
     DESTINATION lib/cmake/freetype
-    FILE freetype-config.cmake
     )
+  install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/freetype-config-version.cmake
+    DESTINATION lib/cmake/freetype)
 endif ()
 
 
