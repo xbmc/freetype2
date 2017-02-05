@@ -318,6 +318,7 @@ set(BASE_SRCS
 
 if (WIN32)
   set(BASE_SRCS ${BASE_SRCS} builds/windows/ftdebug.c)
+  set(BASE_SRCS ${BASE_SRCS} src/base/win32_compat.c)
 elseif (WINCE)
   set(BASE_SRCS ${BASE_SRCS} builds/wince/ftdebug.c)
 else ()

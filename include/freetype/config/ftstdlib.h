@@ -101,9 +101,18 @@
 
 #include <stdio.h>
 
+#ifdef _MSC_VER
+FILE* utf8_fopen(
+  char const* _FileName,
+  char const* _Mode
+);
+
+#define ft_fopen    utf8_fopen
+#else
+#define ft_fopen    fopen
+#endif
 #define FT_FILE     FILE
 #define ft_fclose   fclose
-#define ft_fopen    fopen
 #define ft_fread    fread
 #define ft_fseek    fseek
 #define ft_ftell    ftell
