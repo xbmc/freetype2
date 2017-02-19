@@ -5,7 +5,7 @@
 /*    Stream handling (specification).                                     */
 /*                                                                         */
 /*  Copyright 2017 by                                                      */
-/*  Pär Björklund                                                          */
+/*  Pï¿½r Bjï¿½rklund                                                          */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
 /*  modified, and distributed under the terms of the FreeType project      */
@@ -22,7 +22,7 @@
 #include <windows.h>
 
 #if defined(WIN32) || defined(_MSC_VER)
-wchar_t* to_utf16(const char* str, size_t length)
+wchar_t* ft_to_utf16(const char* str, size_t length)
 {
   if (length == 0)
     length = strlen(str);
@@ -44,7 +44,7 @@ wchar_t* to_utf16(const char* str, size_t length)
   return dirPath;
 }
 
-char* to_utf8(const wchar_t* str, size_t length)
+char* ft_to_utf8(const wchar_t* str, size_t length)
 {
   if (length == 0)
     length = wcslen(str);
@@ -72,8 +72,8 @@ FILE* utf8_fopen(
 {
   FILE* f = NULL;
   errno_t result = 0;
-  wchar_t* filename = to_utf16(_FileName, 0);
-  wchar_t* mode = to_utf16(_Mode, 0);
+  wchar_t* filename = ft_to_utf16(_FileName, 0);
+  wchar_t* mode = ft_to_utf16(_Mode, 0);
 
   if (filename && mode)
     result = _wfopen_s(&f, filename, mode);
